@@ -1,5 +1,9 @@
 _G.Color = Color3.fromRGB(30, 144, 255)
 _G.Logo = 91556276394723
+_G.Settings = {
+		Auto_Farm_Level = false,
+}
+do 
 	local ui = game:GetService("CoreGui"):FindFirstChild("UILibrary") 
 	 if ui then 
 		ui:Destroy() 
@@ -1951,7 +1955,7 @@ function SaveSettings()
 			if not isfile("MinGaming Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json") then
 				LoadSettings()
 			else
-				local Decode = game:GetService("HttpService"):JSONDecode(readfile("Attack Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"))
+				local Decode = game:GetService("HttpService"):JSONDecode(readfile("MinGaming Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"))
 				local Array = {}
 				for i,v in pairs(_G.Settings) do
 					Array[i] = v
