@@ -1,32 +1,3 @@
-local exploit = getexecutorname or identifyexecutor
-
-
-local hello = {
-    ["Fluxus"] = true,
-    ["Hydrogen"] = true,
-    ["Arceus"] = true,
-    ["Delta"] = true,
-    ["Solara"] = false,
-    ["Codex"] = true,
-    ["Wave"] = true,
-    ["Vegax"] = true,
-    ["Trigon"] = true,
-    ["Ronix"] = false,
-    ["Illusion"] = true,
-    ["Swift"] = true,
-    ["Xeno"] = true,
-    ["Zorara"] = true,
-    ["Cryptic"] = true,
-    ["Argon"] = true,
-    ["Atlantis"] = false,
-}
-
-
-if hello[exploit()] == false then
-    game:GetService("Players").LocalPlayer:Kick("Not Support " .. exploit() .. " | Client Bạn Đang Sử Dụng Không Hỗ Trợ Script Chúng Tôi" .. exploit())
-else
-print("DEV HD ROBLOX")
-end
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 _G.Primary = Color3.fromRGB(0,255,0)
 _G.Dark = Color3.fromRGB(0,0,0)
@@ -36,6 +7,7 @@ _G.ThongBao = "MinGaming Hub"
 _G.ThongBaoChoose = "WELLCOME TO SCRIPT!"
 _G.YouTube = "https://www.youtube.com/@HdHackBloxFruits"
 _G.Discord = "https://discord.gg/JXgDmN7u6c"
+_G.Tiktok = "https://discord.gg/JXgDmN7u6c"
 notis = require(game.ReplicatedStorage:WaitForChild("Notification"))
 notis.new("<Color=Yellow>GG \n<Color=/>".. _G.ThongBao):Display()
 _G.SafeFarm = true
