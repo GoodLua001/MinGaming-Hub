@@ -17209,7 +17209,6 @@ ScreenGui1.Parent = game.CoreGui
 ScreenGui1.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 ImageButton1.Parent = ScreenGui1
-ImageButton1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton1.BorderSizePixel = 0
 ImageButton1.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton1.Size = UDim2.new(0, 50, 0, 50)
@@ -17221,7 +17220,7 @@ ImageButton1.MouseButton1Down:connect(function()
 end)
 UICorner.Parent = ImageButton1
 UIStroke.Color = Color3.fromRGB(252, 3, 161)
-UIStroke.Thickness = 1.5
+UIStroke.Thickness = 2
 UIStroke.Parent = ImageButton1
 ---------------------------------------------------------------------------------------------------------------------------------------
 local player = game.Players.LocalPlayer
