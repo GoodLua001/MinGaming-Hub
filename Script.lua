@@ -3534,7 +3534,6 @@ Set = win:AddTab("Settings")
         local Bring = Settings:AddToggle("Bring Mob"),_G.BringMob = value,function(value)
             _G.BringMob
         end)
-        Options.ToggleBringMob:SetValue(true)
         spawn(function()
             while wait() do
                 pcall(function()
