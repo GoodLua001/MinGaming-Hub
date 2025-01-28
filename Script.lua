@@ -1,11 +1,41 @@
+local exploit = getexecutorname or identifyexecutor
+
+
+local hello = {
+    ["Fluxus"] = true,
+    ["Hydrogen"] = true,
+    ["Arceus"] = true,
+    ["Delta"] = true,
+    ["Solara"] = false,
+    ["Codex"] = true,
+    ["Wave"] = true,
+    ["Vegax"] = true,
+    ["Trigon"] = true,
+    ["Ronix"] = false,
+    ["Illusion"] = true,
+    ["Swift"] = true,
+    ["Xeno"] = true,
+    ["Zorara"] = true,
+    ["Cryptic"] = true,
+    ["Argon"] = true,
+    ["Atlantis"] = false,
+}
+
+
+if hello[exploit()] == false then
+    game:GetService("Players").LocalPlayer:Kick("Not Support " .. exploit() .. " | Client Bạn Đang Sử Dụng Không Hỗ Trợ Script Chúng Tôi" .. exploit())
+else
+print("DEV HD ROBLOX")
+end
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 _G.Primary = Color3.fromRGB(0,255,0)
-_G.Dark = Color3.fromRGB(46, 56, 56)
+_G.Dark = Color3.fromRGB(0,0,0)
 ----------------------------------------------------------------------------------------------------------------------------------------
-_G.TieuDe = "MINGAMING HUB"
-_G.ThongBao = "MINGAMING HUB"
+_G.TieuDe = "MinGaming Hub"
+_G.ThongBao = "MinGaming Hub"
 _G.ThongBaoChoose = "WELLCOME TO SCRIPT!"
 _G.YouTube = "https://www.youtube.com/@HdHackBloxFruits"
+_G.Discord = "https://discord.gg/JXgDmN7u6c"
 notis = require(game.ReplicatedStorage:WaitForChild("Notification"))
 notis.new("<Color=Yellow>GG \n<Color=/>".. _G.ThongBao):Display()
 _G.SafeFarm = true
@@ -74,7 +104,7 @@ spawn(function()
         end
     end
 end)
-function intiAppleHub() 
+function intiMinGaming() 
 _G.antiscan = true
 getgenv().A = require(game:GetService("ReplicatedStorage").CombatFramework.RigLib).wrapAttackAnimationAsync
 getgenv().B = require(game.Players.LocalPlayer.PlayerScripts.CombatFramework.Particle).play
@@ -2927,9 +2957,23 @@ end
                 NameMon = "Isle Champion"
                 CFrameQuest = CFrame.new(-16539.078125, 55.68632888793945, 1051.5738525390625)
                 CFrameMon = CFrame.new(-16347.4150390625, 92.09503936767578, 1122.335205078125)
-            end
+            elseif MyLevel == 2550 or MyLevel <= 2574 then
+                 Mon = "Serpent Hunter"
+                  LevelQuest = 1
+                  NameQuest = "TikiQuest3"
+                  NameMon = "Serpent Hunter"
+                  CFrameQuest = CFrame.new(-16665, 105, 1576)
+                  CFrameMon = CFrame.new(-16568, 165, 1589)
+            elseif MyLevel == 2575 or MyLevel <= 2600 then
+                   Mon = "Skull Slayer"
+                   LevelQuest = 2
+                   NameQuest = "TikiQuest3"
+                   NameMon = "Skull Slayer"
+                   CFrameQuest = CFrame.new(-16665, 105, 1576)
+                   CFrameMon = CFrame.new(-16844, 158, 1633)
         end
     end
+end
 --------------------------------------------------------------------------------------------------------
     function Hop()
         local PlaceID = game.PlaceId
@@ -4462,17 +4506,14 @@ spawn(function()
     end
 end)
 
-TienTiny:AddSeperator("🧑‍💻 Developer 🧑‍💻")
-TienTiny:AddLabel("Owner: Nguyen Minh Tien (Tien Tiny)")
+TienTiny:AddSeperator("🗿")
+TienTiny:AddLabel("Owner: HdHackBloxFruits")
 TienTiny:AddSeperator("Social Network")
 TienTiny:AddButton('Discord Sever', function()
 setclipboard(_G.Discord)
 end)
-TienTiny:AddButton('YouTube Official', function()
+TienTiny:AddButton('YouTube Dev', function()
 setclipboard(_G.YouTube)
-end)
-TienTiny:AddButton('Tik Tok Official', function()
-setclipboard(_G.TikTok)
 end)
 --------------------------------------------------------------------------------------------------------
 Settings:AddSeperator("Settings Farming")
@@ -17187,31 +17228,35 @@ spawn(function()
     end)
 FakeDamage("")
 ----------------------------------------------------------------------------------------------------------------------------------------
-local ScreenGui1 = Instance.new("ScreenGui")
-local ImageButton1 = Instance.new("ImageButton")
-local UICorner = Instance.new("UICorner")
-local UIStroke = Instance.new("UIStroke")
+local DINOHUB = Instance.new("ScreenGui")
+local OPENCLOSE = Instance.new("TextButton")
 
-ScreenGui1.Name = "ImageButton"
-ScreenGui1.Parent = game.CoreGui
-ScreenGui1.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-ImageButton1.Parent = ScreenGui1
-ImageButton1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ImageButton1.BorderSizePixel = 0
-ImageButton1.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
-ImageButton1.Size = UDim2.new(0, 50, 0, 50)
-ImageButton1.Draggable = true
-ImageButton1.Image = "http://www.roblox.com/asset/?id=91556276394723"
-ImageButton1.MouseButton1Down:connect(function()
-  game:GetService("VirtualInputManager"):SendKeyEvent(true,305,false,game)
-  game:GetService("VirtualInputManager"):SendKeyEvent(false,305,false,game)
+DINOHUB.Name = "DINOHUB"
+DINOHUB.Parent = game.CoreGui
+DINOHUB.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+OPENCLOSE.Name = "OPENCLOSE"
+OPENCLOSE.Parent = DINOHUB
+OPENCLOSE.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+OPENCLOSE.BorderSizePixel = 0
+OPENCLOSE.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
+OPENCLOSE.Size = UDim2.new(0.0447916649, 0, 0.0845824406, 0)
+OPENCLOSE.Font = Enum.Font.DenkOne
+OPENCLOSE.Text = "CLOSE"
+OPENCLOSE.TextColor3 = Color3.fromRGB(255, 255, 255)
+OPENCLOSE.TextScaled = true
+OPENCLOSE.TextSize = 14.000
+OPENCLOSE.TextWrapped = true
+OPENCLOSE.MouseButton1Click:Connect(function()
+    game.CoreGui:FindFirstChild("DinoUI").Enabled = not game.CoreGui:FindFirstChild("DinoUI").Enabled
 end)
-UICorner.Parent = ImageButton1
-UIStroke.Color = Color3.fromRGB(252, 3, 161)
-UIStroke.Thickness = 1.5
-UIStroke.Parent = ImageButton1
-----------------------------------------------------------------------------------------------------------------------------------------
+do
+    if game:GetService("CoreGui"):FindFirstChild("DinoUI") then
+        game:GetService("CoreGui").DinoUI:Destroy()
+    end
+end
+---------------------------------------------------------------------------------------------------------------------------------------
 local player = game.Players.LocalPlayer
 
 function FindEnemiesInRange(targets, enemies)
