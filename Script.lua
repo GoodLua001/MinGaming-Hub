@@ -13,7 +13,7 @@
 
         MODILEGUISOMEXHUB.Name = "MODILEGUISOMEXHUB"
         MODILEGUISOMEXHUB.Parent = SOMEXHUBMODILE
-        MODILEGUISOMEXHUB.BackgroundColor3 = Color3.fromRGB(30,20,20)
+        MODILEGUISOMEXHUB.BackgroundColor3 = Color3.fromRGB(0,255,0)
         MODILEGUISOMEXHUB.BorderSizePixel = 0
         MODILEGUISOMEXHUB.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
         MODILEGUISOMEXHUB.Size = UDim2.new(0, 50, 0, 50)
@@ -35,12 +35,12 @@
 
         MODILEMAGE.Name = "MODILEMAGE"
         MODILEMAGE.Parent = MODILEGUISOMEXHUB
-        MODILEMAGE.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        MODILEMAGE.BackgroundColor3 = Color3.fromRGB(0,0,0)
         MODILEMAGE.BackgroundTransparency = 1.000
         MODILEMAGE.BorderSizePixel = 0
         MODILEMAGE.Position = UDim2.new(0.234619886, 0, 0.239034846, 0)
         MODILEMAGE.Size = UDim2.new(0, 25, 0, 25)
-        MODILEMAGE.Image = "http://www.roblox.com/asset/?id=9557240098"
+        MODILEMAGE.Image = "http://www.roblox.com/asset/?id=91556276394723"
 do
 	local ui = game.CoreGui:FindFirstChild("POWERXHUB")
 	if ui then
@@ -157,7 +157,7 @@ function library:AddWindow(text,logo,keybind)
 	local Logo = Instance.new("ImageLabel")
 	Logo.Name = "Logo"
 	Logo.Parent = Top
-	Logo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Logo.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	Logo.BackgroundTransparency = 1.000
 	Logo.Position = UDim2.new(0, 10, 0, 1)
 	Logo.Size = UDim2.new(0, 25, 0, 25)
@@ -166,19 +166,19 @@ function library:AddWindow(text,logo,keybind)
 	local Name = Instance.new("TextLabel")
 	Name.Name = "Name"
 	Name.Parent = Top
-	Name.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Name.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	Name.BackgroundTransparency = 1.000
 	Name.Position = UDim2.new(0.0609756112, 0, 0, 0)
 	Name.Size = UDim2.new(0, 61, 0, 27)
 	Name.Font = Enum.Font.GothamSemibold
 	Name.Text = text
-	Name.TextColor3 = Color3.fromRGB(225, 225, 225)
+	Name.TextColor3 = Color3.fromRGB(0,255,0)
 	Name.TextSize = 17.000
 
 	local Hub = Instance.new("TextLabel")
 	Hub.Name = "Hub"
 	Hub.Parent = Top
-	Hub.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Hub.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	Hub.BackgroundTransparency = 1.000
 	Hub.Position = UDim2.new(0, 110, 0, 0)
 	Hub.Size = UDim2.new(0, 81, 0, 27)
@@ -191,7 +191,7 @@ function library:AddWindow(text,logo,keybind)
 	local BindButton = Instance.new("TextButton")
 	BindButton.Name = "BindButton"
 	BindButton.Parent = Top
-	BindButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	BindButton.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	BindButton.BackgroundTransparency = 1.000
 	BindButton.Position = UDim2.new(0.847561002, 0, 0, 0)
 	BindButton.Size = UDim2.new(0, 100, 0, 27)
@@ -226,7 +226,7 @@ function library:AddWindow(text,logo,keybind)
 	ScrollTab.Name = "ScrollTab"
 	ScrollTab.Parent = Tab
 	ScrollTab.Active = true
-	ScrollTab.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	ScrollTab.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	ScrollTab.BackgroundTransparency = 1.000
 	ScrollTab.Size = UDim2.new(0, 150, 0, 365)
 	ScrollTab.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -259,7 +259,7 @@ function library:AddWindow(text,logo,keybind)
 	MainPage.Name = "MainPage"
 	MainPage.Parent = Page
 	MainPage.ClipsDescendants = true
-	MainPage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	MainPage.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	MainPage.BackgroundTransparency = 1.000
 	MainPage.Size = UDim2.new(0, 490, 0, 365)
 
@@ -301,7 +301,7 @@ function library:AddWindow(text,logo,keybind)
 		TabButton.Parent = ScrollTab
 		TabButton.Name = text.."Server"
 		TabButton.Text = text
-		TabButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TabButton.BackgroundColor3 = Color3.fromRGB(0,255,0)
 		TabButton.BackgroundTransparency = 1.000
 		TabButton.Size = UDim2.new(0, 130, 0, 23)
 		TabButton.Font = Enum.Font.GothamSemibold
@@ -313,7 +313,7 @@ function library:AddWindow(text,logo,keybind)
 		MainFramePage.Name = text.."_Page"
 		MainFramePage.Parent = PageList
 		MainFramePage.Active = true
-		MainFramePage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		MainFramePage.BackgroundColor3 = Color3.fromRGB(0,255,0)
 		MainFramePage.BackgroundTransparency = 1.000
 		MainFramePage.BorderSizePixel = 0
 		MainFramePage.Size = UDim2.new(0, 490, 0, 365)
@@ -483,7 +483,7 @@ function library:AddWindow(text,logo,keybind)
 
 			Label.Name = "Label"
 			Label.Parent = Toggle
-			Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Label.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Label.BackgroundTransparency = 1.000
 			Label.Position = UDim2.new(0, 1, 0, 1)
 			Label.Size = UDim2.new(0, 468, 0, 29)
@@ -564,7 +564,7 @@ function library:AddWindow(text,logo,keybind)
 			
 			DropTitle.Name = "DropTitle"
 			DropTitle.Parent = Dropdown
-			DropTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			DropTitle.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			DropTitle.BackgroundTransparency = 1.000
 			DropTitle.Size = UDim2.new(0, 470, 0, 31)
 			DropTitle.Font = Enum.Font.GothamSemibold
@@ -575,7 +575,7 @@ function library:AddWindow(text,logo,keybind)
 			DropScroll.Name = "DropScroll"
 			DropScroll.Parent = DropTitle
 			DropScroll.Active = true
-			DropScroll.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			DropScroll.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			DropScroll.BackgroundTransparency = 1.000
 			DropScroll.BorderSizePixel = 0
 			DropScroll.Position = UDim2.new(0, 0, 0, 31)
@@ -593,7 +593,7 @@ function library:AddWindow(text,logo,keybind)
 			
 			DropImage.Name = "DropImage"
 			DropImage.Parent = Dropdown
-			DropImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			DropImage.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			DropImage.BackgroundTransparency = 1.000
 			DropImage.Position = UDim2.new(0, 445, 0, 6)
 			DropImage.Rotation = 180.000
@@ -602,7 +602,7 @@ function library:AddWindow(text,logo,keybind)
 			
 			DropButton.Name = "DropButton"
 			DropButton.Parent = Dropdown
-			DropButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			DropButton.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			DropButton.BackgroundTransparency = 1.000
 			DropButton.Size = UDim2.new(0, 470, 0, 31)
 			DropButton.Font = Enum.Font.SourceSans
@@ -615,7 +615,7 @@ function library:AddWindow(text,logo,keybind)
 
 				Item.Name = "Item"
 				Item.Parent = DropScroll
-				Item.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Item.BackgroundColor3 = Color3.fromRGB(0,255,0)
 				Item.BackgroundTransparency = 1.000
 				Item.Size = UDim2.new(0, 460, 0, 26)
 				Item.Font = Enum.Font.GothamSemibold
@@ -680,7 +680,7 @@ function library:AddWindow(text,logo,keybind)
 				local Item = Instance.new("TextButton")
 				Item.Name = "Item"
 				Item.Parent = DropScroll
-				Item.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Item.BackgroundColor3 = Color3.fromRGB(0,255,0)
 				Item.BackgroundTransparency = 1.000
 				Item.Size = UDim2.new(0, 470, 0, 26)
 				Item.Font = Enum.Font.GothamSemibold
@@ -776,7 +776,7 @@ function library:AddWindow(text,logo,keybind)
 
 			SliderLabel.Name = "SliderLabel"
 			SliderLabel.Parent = sliderr
-			SliderLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			SliderLabel.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			SliderLabel.BackgroundTransparency = 1.000
 			SliderLabel.Position = UDim2.new(0, 15, 0, 0)
 			SliderLabel.Size = UDim2.new(0, 180, 0, 26)
@@ -789,13 +789,13 @@ function library:AddWindow(text,logo,keybind)
 
 			HAHA.Name = "HAHA"
 			HAHA.Parent = sliderr
-			HAHA.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			HAHA.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			HAHA.BackgroundTransparency = 1.000
 			HAHA.Size = UDim2.new(0, 468, 0, 29)
 
 			AHEHE.Name = "AHEHE"
 			AHEHE.Parent = sliderr
-			AHEHE.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			AHEHE.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			AHEHE.BackgroundTransparency = 1.000
 			AHEHE.Position = UDim2.new(0, 10, 0, 35)
 			AHEHE.Size = UDim2.new(0, 448, 0, 5)
@@ -945,7 +945,7 @@ function library:AddWindow(text,logo,keybind)
 
 			TextboxLabel.Name = "TextboxLabel"
 			TextboxLabel.Parent = Textbox
-			TextboxLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			TextboxLabel.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			TextboxLabel.BackgroundTransparency = 1.000
 			TextboxLabel.Position = UDim2.new(0, 15, 0, 0)
 			TextboxLabel.Text = text
@@ -958,7 +958,7 @@ function library:AddWindow(text,logo,keybind)
 
 			txtbtn.Name = "txtbtn"
 			txtbtn.Parent = Textbox
-			txtbtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			txtbtn.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			txtbtn.BackgroundTransparency = 1.000
 			txtbtn.Position = UDim2.new(0, 1, 0, 1)
 			txtbtn.Size = UDim2.new(0, 468, 0, 29)
@@ -996,7 +996,7 @@ function library:AddWindow(text,logo,keybind)
 	
 			Label.Name = "Label"
 			Label.Parent = MainFramePage
-			Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Label.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Label.BackgroundTransparency = 1.000
 			Label.Size = UDim2.new(0, 470, 0, 20)
 			Label.Font = Enum.Font.GothamSemibold
@@ -1023,7 +1023,7 @@ function library:AddWindow(text,logo,keybind)
 			
 			Seperator.Name = "Seperator"
 			Seperator.Parent = MainFramePage
-			Seperator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Seperator.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Seperator.BackgroundTransparency = 1.000
 			Seperator.Size = UDim2.new(0, 470, 0, 20)
 			
@@ -1036,13 +1036,13 @@ function library:AddWindow(text,logo,keybind)
 			
 			Sep2.Name = "Sep2"
 			Sep2.Parent = Seperator
-			Sep2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Sep2.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Sep2.BackgroundTransparency = 1.000
 			Sep2.Position = UDim2.new(0, 185, 0, 0)
 			Sep2.Size = UDim2.new(0, 100, 0, 20)
 			Sep2.Font = Enum.Font.GothamSemibold
 			Sep2.Text = text
-			Sep2.TextColor3 = Color3.fromRGB(255, 255, 255)
+			Sep2.TextColor3 = Color3.fromRGB(0,255,0)
 			Sep2.TextSize = 14.000
 			
 			Sep3.Name = "Sep3"
@@ -1059,7 +1059,7 @@ function library:AddWindow(text,logo,keybind)
 			
 			Linee.Name = "Linee"
 			Linee.Parent = MainFramePage
-			Linee.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Linee.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Linee.BackgroundTransparency = 1.000
 			Linee.Position = UDim2.new(0, 0, 0.119999997, 0)
 			Linee.Size = UDim2.new(0, 470, 0, 20)
