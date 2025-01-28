@@ -47,7 +47,7 @@ do
 		ui:Destroy()
 	end
 	if getgenv().Color == nil then
-		getgenv().Color = Color3.fromRGB(255,255,255)
+		getgenv().Color = Color3.fromRGB(0,255,0)
 		if getgenv().ColorTog == nil then
 		    getgenv().ColorTog = Color3.fromRGB(0,255,0)
 		    end
@@ -134,7 +134,7 @@ function library:AddWindow(text,logo,keybind)
 	Main.Parent = POWERXHUB
 	Main.ClipsDescendants = true
 	Main.AnchorPoint = Vector2.new(0.5,0.5)
-	Main.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+	Main.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Main.Size = UDim2.new(0, 0, 0, 0)
 	
@@ -147,7 +147,7 @@ function library:AddWindow(text,logo,keybind)
 	local Top = Instance.new("Frame")
 	Top.Name = "Top"
 	Top.Parent = Main
-	Top.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	Top.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	Top.Size = UDim2.new(0, 656, 0, 27)
 
 	local TCNR = Instance.new("UICorner")
@@ -157,11 +157,11 @@ function library:AddWindow(text,logo,keybind)
 	local Logo = Instance.new("ImageLabel")
 	Logo.Name = "Logo"
 	Logo.Parent = Top
-	Logo.BackgroundColor3 = Color3.fromRGB(0,255,0)
+	Logo.BackgroundColor3 = Color3.fromRGB(0,0,0)
 	Logo.BackgroundTransparency = 1.000
 	Logo.Position = UDim2.new(0, 10, 0, 1)
 	Logo.Size = UDim2.new(0, 25, 0, 25)
-	Logo.Image = "rbxassetid://"..tostring(logo)
+	Logo.Image = "rbxassetid://91556276394723"..tostring(logo)
 
 	local Name = Instance.new("TextLabel")
 	Name.Name = "Name"
@@ -214,7 +214,7 @@ function library:AddWindow(text,logo,keybind)
 	local Tab = Instance.new("Frame")
 	Tab.Name = "Tab"
 	Tab.Parent = Main
-	Tab.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	Tab.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	Tab.Position = UDim2.new(0, 5, 0, 30)
 	Tab.Size = UDim2.new(0, 150, 0, 365)
 
@@ -247,7 +247,7 @@ function library:AddWindow(text,logo,keybind)
 	local Page = Instance.new("Frame")
 	Page.Name = "Page"
 	Page.Parent = Main
-	Page.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	Page.BackgroundColor3 = Color3.fromRGB(0,255,0)
 	Page.Position = UDim2.new(0.245426834, 0, 0.075000003, 0)
 	Page.Size = UDim2.new(0, 490, 0, 365)
 
@@ -305,7 +305,7 @@ function library:AddWindow(text,logo,keybind)
 		TabButton.BackgroundTransparency = 1.000
 		TabButton.Size = UDim2.new(0, 130, 0, 23)
 		TabButton.Font = Enum.Font.GothamSemibold
-		TabButton.TextColor3 = Color3.fromRGB(225, 225, 225)
+		TabButton.TextColor3 = Color3.fromRGB(0,255,0)
 		TabButton.TextSize = 15.000
 		TabButton.TextTransparency = 0.500
 
@@ -399,13 +399,13 @@ function library:AddWindow(text,logo,keybind)
 			
 			TextBtn.Name = "TextBtn"
 			TextBtn.Parent = Button
-			TextBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			TextBtn.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			TextBtn.Position = UDim2.new(0, 1, 0, 1)
 			TextBtn.Size = UDim2.new(0, 468, 0, 29)
 			TextBtn.AutoButtonColor = false
 			TextBtn.Font = Enum.Font.GothamSemibold
 			TextBtn.Text = text
-			TextBtn.TextColor3 = Color3.fromRGB(225, 225, 225)
+			TextBtn.TextColor3 = Color3.fromRGB(0,255,0)
 			TextBtn.TextSize = 15.000
 			
 			UICorner_2.CornerRadius = UDim.new(0, 5)
@@ -469,7 +469,7 @@ function library:AddWindow(text,logo,keybind)
 
 			Button.Name = "Button"
 			Button.Parent = Toggle
-			Button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			Button.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Button.Position = UDim2.new(0, 1, 0, 1)
 			Button.Size = UDim2.new(0, 468, 0, 29)
 			Button.AutoButtonColor = false
@@ -489,12 +489,12 @@ function library:AddWindow(text,logo,keybind)
 			Label.Size = UDim2.new(0, 468, 0, 29)
 			Label.Font = Enum.Font.GothamSemibold
 			Label.Text = text
-			Label.TextColor3 = Color3.fromRGB(225, 225, 225)
+			Label.TextColor3 = Color3.fromRGB(0,255,0)
 			Label.TextSize = 15.000
 
 			ToggleImage.Name = "ToggleImage"
 			ToggleImage.Parent = Toggle
-			ToggleImage.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
+			ToggleImage.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			ToggleImage.Position = UDim2.new(0, 415, 0, 5)
 			ToggleImage.Size = UDim2.new(0, 45, 0, 20)
 
@@ -503,7 +503,7 @@ function library:AddWindow(text,logo,keybind)
 
 			Circle.Name = "Circle"
 			Circle.Parent = ToggleImage
-			Circle.BackgroundColor3 = Color3.fromRGB(227, 60, 60)
+			Circle.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Circle.Position = UDim2.new(0, 2, 0, 2)
 			Circle.Size = UDim2.new(0, 16, 0, 16)
 
@@ -555,7 +555,7 @@ function library:AddWindow(text,logo,keybind)
 			
 			Dropdown.Name = "Dropdown"
 			Dropdown.Parent = MainFramePage
-			Dropdown.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			Dropdown.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			Dropdown.ClipsDescendants = true
 			Dropdown.Size = UDim2.new(0, 470, 0, 31)
 			
@@ -569,7 +569,7 @@ function library:AddWindow(text,logo,keybind)
 			DropTitle.Size = UDim2.new(0, 470, 0, 31)
 			DropTitle.Font = Enum.Font.GothamSemibold
 			DropTitle.Text = text.. " : "
-			DropTitle.TextColor3 = Color3.fromRGB(225, 225, 225)
+			DropTitle.TextColor3 = Color3.fromRGB(0,255,0)
 			DropTitle.TextSize = 15.000
 			
 			DropScroll.Name = "DropScroll"
@@ -598,7 +598,7 @@ function library:AddWindow(text,logo,keybind)
 			DropImage.Position = UDim2.new(0, 445, 0, 6)
 			DropImage.Rotation = 180.000
 			DropImage.Size = UDim2.new(0, 20, 0, 20)
-			DropImage.Image = "rbxassetid://6031090990"
+			DropImage.Image = "rbxassetid://91556276394723"
 			
 			DropButton.Name = "DropButton"
 			DropButton.Parent = Dropdown
@@ -620,7 +620,7 @@ function library:AddWindow(text,logo,keybind)
 				Item.Size = UDim2.new(0, 460, 0, 26)
 				Item.Font = Enum.Font.GothamSemibold
 				Item.Text = tostring(v)
-				Item.TextColor3 = Color3.fromRGB(225, 225, 225)
+				Item.TextColor3 = Color3.fromRGB(0,255,0)
 				Item.TextSize = 13.000
 				Item.TextTransparency = 0.500
 
@@ -685,7 +685,7 @@ function library:AddWindow(text,logo,keybind)
 				Item.Size = UDim2.new(0, 470, 0, 26)
 				Item.Font = Enum.Font.GothamSemibold
 				Item.Text = tostring(t)
-				Item.TextColor3 = Color3.fromRGB(225, 225, 225)
+				Item.TextColor3 = Color3.fromRGB(0,255,0)
 				Item.TextSize = 13.000
 				Item.TextTransparency = 0.500
 
@@ -766,7 +766,7 @@ function library:AddWindow(text,logo,keybind)
 
 			sliderr.Name = "sliderr"
 			sliderr.Parent = Slider
-			sliderr.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			sliderr.BackgroundColor3 = Color3.fromRGB(0,255,0)
 			sliderr.Position = UDim2.new(0, 1, 0, 1)
 			sliderr.Size = UDim2.new(0, 468, 0, 49)
 
@@ -782,7 +782,7 @@ function library:AddWindow(text,logo,keybind)
 			SliderLabel.Size = UDim2.new(0, 180, 0, 26)
 			SliderLabel.Font = Enum.Font.GothamSemibold
 			SliderLabel.Text = text
-			SliderLabel.TextColor3 = Color3.fromRGB(225, 225, 225)
+			SliderLabel.TextColor3 = Color3.fromRGB(0,255,0)
 			SliderLabel.TextSize = 16.000
 			SliderLabel.TextTransparency = 0
 			SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
