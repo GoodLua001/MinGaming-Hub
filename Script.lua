@@ -283,7 +283,7 @@ ttittles.BackgroundTransparency = 1
 ttittles.Position = UDim2.new(0,30,0.05,0)
 ttittles.Size = UDim2.new(0, 255, 0.05, 25)
 ttittles.Font = Enum.Font.SourceSansBold
-ttittles.Text = "MINGAMING HUB"
+ttittles.Text = "MinGaming Hub"
 ttittles.TextSize = 15.000
 ttittles.TextColor3 = Color3.fromRGB(255,255,255)
 ttittles.TextXAlignment = Enum.TextXAlignment.Left
@@ -17197,8 +17197,9 @@ spawn(function()
         end
     end)
     end)
-FakeDamage("Information")
---------------------------------------------------------------------------------------------------local ScreenGui1 = Instance.new("ScreenGui")
+FakeDamage("Mất Máu")
+--------------------------------------------------------------------------------------------------
+local ScreenGui1 = Instance.new("ScreenGui")
 local ImageButton1 = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
@@ -17213,7 +17214,7 @@ ImageButton1.BorderSizePixel = 0
 ImageButton1.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton1.Size = UDim2.new(0, 50, 0, 50)
 ImageButton1.Draggable = true
-ImageButton1.Image = "rbxassetid://13717478897"
+ImageButton1.Image = "rbxassetid://86093074270143"
 ImageButton1.MouseButton1Down:connect(function()
   game:GetService("VirtualInputManager"):SendKeyEvent(true,305,false,game)
   game:GetService("VirtualInputManager"):SendKeyEvent(false,305,false,game)
