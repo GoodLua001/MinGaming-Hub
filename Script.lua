@@ -17198,8 +17198,7 @@ spawn(function()
     end)
     end)
 FakeDamage("Information")
----------------------------------------------------------------------------------------------------------------------------------------
-local ScreenGui1 = Instance.new("ScreenGui")
+--------------------------------------------------------------------------------------------------local ScreenGui1 = Instance.new("ScreenGui")
 local ImageButton1 = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
@@ -17214,7 +17213,7 @@ ImageButton1.BorderSizePixel = 0
 ImageButton1.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
 ImageButton1.Size = UDim2.new(0, 50, 0, 50)
 ImageButton1.Draggable = true
-ImageButton1.Image = "rbxassetid://91556276394723"
+ImageButton1.Image = "rbxassetid://13717478897"
 ImageButton1.MouseButton1Down:connect(function()
   game:GetService("VirtualInputManager"):SendKeyEvent(true,305,false,game)
   game:GetService("VirtualInputManager"):SendKeyEvent(false,305,false,game)
