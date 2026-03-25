@@ -9,7 +9,6 @@ local remoteHit = ReplicatedStorage:WaitForChild("CombatSystem"):WaitForChild("R
 local remoteQuest = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("QuestAccept")
 local remoteTeleport = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("TeleportToPortal")
 
--- 1. BẢNG CẤU HÌNH THEO LEVEL BẠN CUNG CẤP ĐÃ ĐƯỢC CHUẨN HOÁ
 local MobConfig = {
     {Min = 0, Max = 99, Mob = "Thief", Island = "Starter"},
     {Min = 100, Max = 249, Mob = "Thief Boss", Island = "Starter"},
@@ -22,7 +21,6 @@ local MobConfig = {
     {Min = 3000, Max = 99999, Mob = "Sorcerer Student", Island = "Shibuya"}
 }
 
--- HÀM LẤY DATA FARM HIỆN TẠI THEO LEVEL
 local function getCurrentFarm()
     local dataFolder = player:FindFirstChild("Data")
     if not dataFolder then return nil end
@@ -36,7 +34,6 @@ local function getCurrentFarm()
     return MobConfig[#MobConfig]
 end
 
--- HÀM LẤY NHIỆM VỤ GỐC (GIỮ NGUYÊN NHƯ YÊU CẦU)
 local function getBestQuest()
     local dataFolder = player:FindFirstChild("Data")
     if not dataFolder then return nil end
@@ -47,13 +44,13 @@ local function getBestQuest()
     
     for k, v in pairs(questConfig.RepeatableQuests or {}) do
         if type(k) == "string" and k:find("QuestNPC") and v.recommendedLevel and lvl >= v.recommendedLevel and v.recommendedLevel > bestLvl then
-            bestQuest, bestLvl = {QuestID = k, Title = v.title, Data = v}, v.recommendedLevel
+            bestQuest = {QuestID = k, Title = v.title, Data = v}
+            bestLvl = v.recommendedLevel
         end
     end
     return bestQuest
 end
 
--- HÀM TÌM QUÁI TỐI ƯU (CHỈ DỰA VÀO BẢNG BẠN CUNG CẤP)
 local function getTargetMob(targetMobName)
     local npcFolder = workspace:FindFirstChild("NPCs")
     if not npcFolder or not targetMobName then return nil end
@@ -72,7 +69,6 @@ local function getTargetMob(targetMobName)
         if humanoid and root and humanoid.Health > 0 then
             local cleanMobName = v.Name:lower():gsub("%[.-%]", ""):gsub("^%s*(.-)%s*$", "%1")
             
-            -- Nếu tên trùng khớp
             if cleanMobName == tName or cleanMobName:find(tName, 1, true) then
                 local dist = (root.Position - myPos).Magnitude
                 if dist < closestDist then
@@ -86,18 +82,18 @@ local function getTargetMob(targetMobName)
     return bestTarget
 end
 
--- VÒNG LẶP KIỂM TRA ĐẢO & TỰ DỊCH CHUYỂN
+local lastTeleportTime = 0 
+
 task.spawn(function()
     while task.wait(3) do
         if _G.AutoFarm then
             pcall(function()
                 local farmData = getCurrentFarm()
                 if farmData then
-                    -- Quét thử xem quái có trên map không
                     local target = getTargetMob(farmData.Mob)
                     
-                    -- Nếu không có mục tiêu, tỷ lệ cao là đang ở sai Đảo -> Bắn Remote Teleport
-                    if not target then
+                    if not target and (tick() - lastTeleportTime) > 15 then
+                        lastTeleportTime = tick()
                         remoteTeleport:FireServer(farmData.Island)
                     end
                 end
@@ -106,7 +102,6 @@ task.spawn(function()
     end
 end)
 
--- VÒNG LẶP NHẬN NHIỆM VỤ
 task.spawn(function()
     while task.wait(2) do
         if _G.AutoFarm then
@@ -120,7 +115,6 @@ task.spawn(function()
     end
 end)
 
--- VÒNG LẶP DI CHUYỂN
 task.spawn(function()
     while task.wait() do
         if _G.AutoFarm then
@@ -147,7 +141,6 @@ task.spawn(function()
     end
 end)
 
--- VÒNG LẶP CHÉM (FAST ATTACK)
 task.spawn(function()
     while task.wait(0.5) do
         if _G.AutoFarm and _G.FastAttack then
