@@ -92,26 +92,46 @@ spawn(function()
             if Quest_Gui then
                 if Quest_Text == Mob then
                     local MobFolder = nil
+                    
                     for _, npc in ipairs(workspace.NPCs:GetChildren()) do
                         if npc.Name:match("^"..NPC.."%d+$") and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
                             MobFolder = npc
                             break
                         end
                     end
+                    
+                    if not MobFolder then
+                        for _, npc in ipairs(workspace.NPCs:GetChildren()) do
+                            if npc.Name:find(NPC) and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+                                MobFolder = npc
+                                break
+                            end
+                        end
+                    end
 
                     if MobFolder then
-                        local pivot = MobFolder:GetPivot()
-                        local pos = pivot.Position
-
-                        repeat task.wait()
-                            hrp.CFrame = CFrame.lookAt(hrp.Position, pos)
-                            TP(pivot * CFrame.new(0, 6, 0))
-                            game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
-                            
-                            local tool = char:FindFirstChildOfClass("Tool")
-                            if tool then tool:Activate() end
-                            
-                        until not MobFolder or not MobFolder.Parent or MobFolder.Humanoid.Health <= 0 or not QuestUI.Quest.Visible or QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= Mob
+                        local hrp_mob = MobFolder:FindFirstChild("HumanoidRootPart")
+                        if hrp_mob then
+                            if GetDistance(hrp.Position, hrp_mob.Position) > 15 then
+                                TP(hrp_mob.CFrame * CFrame.new(0, 2, 0))
+                                task.wait(0.2)
+                            else
+                                repeat task.wait()
+                                    if not MobFolder or not MobFolder.Parent or MobFolder.Humanoid.Health <= 0 then break end
+                                    local mRoot = MobFolder:FindFirstChild("HumanoidRootPart")
+                                    if mRoot then
+                                        hrp.CFrame = CFrame.lookAt((mRoot.CFrame * CFrame.new(0, 2, 0)).Position, mRoot.Position)
+                                    end
+                                    
+                                    local tool = char:FindFirstChildOfClass("Tool") or player.Backpack:FindFirstChildOfClass("Tool")
+                                    if tool then 
+                                        if tool.Parent ~= char then tool.Parent = char end
+                                        tool:Activate() 
+                                    end
+                                    game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
+                                until not MobFolder or not MobFolder.Parent or MobFolder.Humanoid.Health <= 0 or not QuestUI.Quest.Visible or QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= Mob
+                            end
+                        end
                     else
                         local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
                         if npc then TP(npc:GetPivot() * CFrame.new(0, 0, 3)) end
