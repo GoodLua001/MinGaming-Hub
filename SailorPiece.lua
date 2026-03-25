@@ -2,8 +2,9 @@ _G.Config = {
     AutoFarm = true,
     BringMobs = true,
     AutoStats = true,
-    FarmHeight = 6,
-    BringDistance = 3
+    FarmHeight = 8,
+    BringDistance = 4,
+    TeleportSpeed = 200
 }
 
 function GetDistance(a, b)
@@ -32,12 +33,28 @@ function AddVelocity()
     end
 end
 
+local TweenService = game:GetService("TweenService")
+
 function TP(pos)
     local root = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not root then return end
+    
     local target = typeof(pos) == "CFrame" and pos or CFrame.new(pos.X, pos.Y, pos.Z)
+    local distance = (root.Position - target.Position).Magnitude
+    
+    if distance < 1 then 
+        AddVelocity()
+        root.CFrame = target 
+        return 
+    end
+    
+    local time = distance / _G.Config.TeleportSpeed
+    local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
+    
     AddVelocity()
-    root.CFrame = target
+    local tween = TweenService:Create(root, tweenInfo, {CFrame = target})
+    tween:Play()
+    return tween
 end
 
 local function getBestQuest()
@@ -83,8 +100,11 @@ local function getCurrentMobs(mobName)
 end
 
 spawn(function()
+    local currentFarmTween = nil
+    
     while task.wait() do
         if not _G.Config.AutoFarm then 
+            if currentFarmTween then currentFarmTween:Cancel() currentFarmTween = nil end
             local root = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             if root and root:FindFirstChild("3TOC") then root["3TOC"]:Destroy() end
             continue 
@@ -124,9 +144,13 @@ spawn(function()
                                 mobs = getCurrentMobs(MobNameFolder)
                                 hrp.CFrame = CFrame.lookAt(flyPos, _G.CentralFarmPoint)
 
-                                for _, mob in ipairs(mobs) do
+                                for i, mob in ipairs(mobs) do
                                     pcall(function()
-                                        mob.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, -(_G.Config.FarmHeight - 1), -_G.Config.BringDistance)
+                                        local angle = (i / #mobs) * math.pi * 2
+                                        local x = math.cos(angle) * _G.Config.BringDistance
+                                        local z = math.sin(angle) * _G.Config.BringDistance
+                                        
+                                        mob.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(x, -(_G.Config.FarmHeight - 1), z)
                                         mob.HumanoidRootPart.Velocity = Vector3.new(0,0,0)
                                     end)
                                 end
@@ -163,7 +187,10 @@ spawn(function()
                             until MobInstance.Humanoid.Health <= 0 or not playerGui.QuestUI.Quest.Visible or playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= MobTitleQuest
                         else
                             local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
-                            if npc then TP(npc:GetPivot() * CFrame.new(0, 0, 3)) end
+                            if npc then 
+                                AddVelocity()
+                                hrp.CFrame = npc:GetPivot() * CFrame.new(0, 0, 3) 
+                            end
                         end
                     end
                 else
@@ -174,7 +201,9 @@ spawn(function()
                 _G.CentralFarmPoint = nil
                 local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
                 if npc then
-                    TP(npc:GetPivot() * CFrame.new(0, 0, 3))
+                    AddVelocity()
+                    hrp.CFrame = npc:GetPivot() * CFrame.new(0, 0, 3)
+                    task.wait(0.1)
                     if GetDistance(npc:GetPivot().Position) <= 10 then
                         game:GetService("ReplicatedStorage").RemoteEvents.QuestAccept:FireServer(Quest)
                     end
@@ -199,8 +228,9 @@ spawn(function()
                 
                 if statPoints >= 2 then
                     local pointsToAdd = math.floor(statPoints / 2)
+                    local remainder = statPoints % 2
                     remote:FireServer("Defense", pointsToAdd)
-                    remote:FireServer("Sword", pointsToAdd)
+                    remote:FireServer("Sword", pointsToAdd + remainder)
                 else
                     remote:FireServer("Sword", 1)
                 end
