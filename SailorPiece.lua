@@ -67,8 +67,6 @@ local function getBestQuest()
 end
 
 _G.AutoStats = true
-_G.AutoFarm = true
-
 task.spawn(function()
     local player = game:GetService("Players").LocalPlayer
     local allocateRemote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("AllocateStat")
@@ -110,50 +108,58 @@ task.spawn(function()
     end
 end)
 
-task.spawn(function()
+spawn(function()
     while task.wait() do
-        if _G.AutoFarm then
-            pcall(function()
-                local player = game.Players.LocalPlayer
-                local char = player.Character
-                if not char or not char:FindFirstChild("Humanoid") or char.Humanoid.Health <= 0 then return end
+        pcall(function()
+            local Best_Quest = getBestQuest()
+            local Quest, Mob, NPC, Level = Best_Quest.quest, Best_Quest.namequest, Best_Quest.npc, Best_Quest.level
+            if not Quest or not Mob then return end
 
-                local tool = char:FindFirstChildOfClass("Tool")
-                if not tool then
-                    for _, v in pairs(player.Backpack:GetChildren()) do
-                        if v:IsA("Tool") then
-                            char.Humanoid:EquipTool(v)
+            local player = game:GetService("Players").LocalPlayer
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+            local Quest_Gui = player.PlayerGui.QuestUI.Quest.Visible
+            local Quest_Text = player.PlayerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text
+
+            if Quest_Gui then
+                if Quest_Text == Mob then
+                    local MobFolder = nil
+                    for _, npc in ipairs(workspace.NPCs:GetChildren()) do
+                        if npc.Name:match("^"..NPC.."%d+$") or npc.Name == NPC then
+                            MobFolder = npc
                             break
                         end
                     end
-                end
 
-                local bestQuest = getBestQuest()
-                local targetMob = bestQuest and bestQuest.npc or nil
-                local target = nil
-                local dist = math.huge
+                    if MobFolder and hrp then
+                        local pivot = MobFolder:GetPivot()
+                        local pos = pivot.Position
 
-                local enemiesFolder = workspace:FindFirstChild("Enemies") or workspace:FindFirstChild("Mobs") or workspace
-
-                for _, v in pairs(enemiesFolder:GetChildren()) do
-                    if v:IsA("Model") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 and v.Name ~= player.Name then
-                        if not targetMob or string.find(v.Name, targetMob) then
-                            local d = GetDistance(char, v)
-                            if d < dist then
-                                dist = d
-                                target = v
-                            end
+                        if MobFolder then
+                            repeat task.wait()
+                                hrp.CFrame = CFrame.lookAt(hrp.Position, pos)
+                                TP(pivot * CFrame.new(0, 6, 0))
+                                game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
+                            until not MobFolder or MobFolder.Humanoid.Health <= 0 or not player.PlayerGui.QuestUI.Quest.Visible or player.PlayerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= Mob
                         end
+                    else
+                        local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
+                        if npc then TP(npc:GetPivot() * CFrame.new(0, 0, 3)) end
+                    end
+                else
+                    game:GetService("ReplicatedStorage").RemoteEvents.QuestAbandon:FireServer("repeatable")
+                end
+            else
+                local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
+                if npc then
+                    if GetDistance(npc:GetPivot().Position) > 5 then
+                        TP(npc:GetPivot() * CFrame.new(0, 0, 3))
+                    else
+                        game:GetService("ReplicatedStorage").RemoteEvents.QuestAccept:FireServer(Quest)
                     end
                 end
-
-                if target then
-                    TP(target.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0))
-                    if tool then
-                        tool:Activate()
-                    end
-                end
-            end)
-        end
+            end
+        end)
     end
 end)
