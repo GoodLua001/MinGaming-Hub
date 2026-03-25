@@ -2,7 +2,7 @@ _G.Config = {
     AutoFarm = true,
     BringMobs = true,
     AutoStats = true,
-    FarmHeight = 8,
+    FarmHeight = 6,
     BringDistance = 4,
     TeleportSpeed = 200
 }
@@ -42,13 +42,9 @@ function TP(pos)
     local target = typeof(pos) == "CFrame" and pos or CFrame.new(pos.X, pos.Y, pos.Z)
     local distance = (root.Position - target.Position).Magnitude
     
-    if distance < 1 then 
-        AddVelocity()
-        root.CFrame = target 
-        return 
-    end
-    
     local time = distance / _G.Config.TeleportSpeed
+    if time < 0.05 then time = 0.05 end
+    
     local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
     
     AddVelocity()
@@ -188,8 +184,7 @@ spawn(function()
                         else
                             local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
                             if npc then 
-                                AddVelocity()
-                                hrp.CFrame = npc:GetPivot() * CFrame.new(0, 0, 3) 
+                                TP(npc:GetPivot() * CFrame.new(0, 0, 3))
                             end
                         end
                     end
@@ -201,10 +196,10 @@ spawn(function()
                 _G.CentralFarmPoint = nil
                 local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
                 if npc then
-                    AddVelocity()
-                    hrp.CFrame = npc:GetPivot() * CFrame.new(0, 0, 3)
-                    task.wait(0.1)
-                    if GetDistance(npc:GetPivot().Position) <= 10 then
+                    local targetPos = npc:GetPivot() * CFrame.new(0, 0, 3)
+                    if GetDistance(targetPos.Position) > 10 then
+                        TP(targetPos)
+                    else
                         game:GetService("ReplicatedStorage").RemoteEvents.QuestAccept:FireServer(Quest)
                     end
                 end
