@@ -1,11 +1,10 @@
-_G.Config = {
-    AutoFarm = true,
-    BringMobs = true,
-    AutoStats = true,
-    FarmHeight = 6,
-    BringDistance = 4,
-    TeleportSpeed = 200
-}
+local VirtualUser = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+_G.SelectWeapon = "Sword"
 
 function GetDistance(a, b)
     local function pos(t)
@@ -42,15 +41,39 @@ function TP(pos)
     local target = typeof(pos) == "CFrame" and pos or CFrame.new(pos.X, pos.Y, pos.Z)
     local distance = (root.Position - target.Position).Magnitude
     
-    local time = distance / _G.Config.TeleportSpeed
-    if time < 0.05 then time = 0.05 end
+    if distance < 3 then
+        AddVelocity()
+        root.CFrame = target
+        return
+    end
     
+    local time = distance / 180
     local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
-    
     AddVelocity()
-    local tween = TweenService:Create(root, tweenInfo, {CFrame = target})
-    tween:Play()
-    return tween
+    TweenService:Create(root, tweenInfo, {CFrame = target}):Play()
+end
+
+function AutoEquip()
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    if char then
+        local currentWeapon = char:FindFirstChild(_G.SelectWeapon) or char:FindFirstChildOfClass("Tool")
+        if currentWeapon then return end 
+        
+        local backpack = player:FindFirstChild("Backpack")
+        if backpack then
+            local tool = backpack:FindFirstChild(_G.SelectWeapon) or backpack:FindFirstChildOfClass("Tool")
+            if tool then
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum:EquipTool(tool)
+                    if tool.Parent ~= char then
+                        tool.Parent = char
+                    end
+                end
+            end
+        end
+    end
 end
 
 local function getBestQuest()
@@ -58,24 +81,14 @@ local function getBestQuest()
     if not modulePath then return nil end
     local module = require(modulePath)
     local playerLvl = game.Players.LocalPlayer.Data.Level.Value
-
-    local bestQuest = nil
-    local bestLevel = -math.huge
-
+    local bestQuest, bestLevel = nil, -math.huge
     for name, data in pairs(module.RepeatableQuests or {}) do
         if type(name) == "string" and name:find("QuestNPC") then
             if data.recommendedLevel and data.requirements and data.requirements[1] then
                 local reqLvl = data.recommendedLevel
-                local mobName = data.requirements[1].npcType
-
                 if playerLvl >= reqLvl and reqLvl > bestLevel then
                     bestLevel = reqLvl
-                    bestQuest = {
-                        quest = name,
-                        namequest = data.title,
-                        npc = mobName,
-                        level = reqLvl
-                    }
+                    bestQuest = {quest = name, namequest = data.title, npc = data.requirements[1].npcType}
                 end
             end
         end
@@ -86,7 +99,6 @@ end
 local function getCurrentMobs(mobName)
     local currentMobs = {}
     if not workspace:FindFirstChild("NPCs") then return currentMobs end
-    
     for _, npc in ipairs(workspace.NPCs:GetChildren()) do
         if (npc.Name:match("^"..mobName.."%d+$") or npc.Name == mobName) and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 and npc:FindFirstChild("HumanoidRootPart") then
             table.insert(currentMobs, npc)
@@ -96,111 +108,85 @@ local function getCurrentMobs(mobName)
 end
 
 spawn(function()
-    local currentFarmTween = nil
-    
     while task.wait() do
-        if not _G.Config.AutoFarm then 
-            if currentFarmTween then currentFarmTween:Cancel() currentFarmTween = nil end
-            local root = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if root and root:FindFirstChild("3TOC") then root["3TOC"]:Destroy() end
-            continue 
-        end
+        local player = game:GetService("Players").LocalPlayer
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChild("Humanoid")
         
         pcall(function()
-            local player = game:GetService("Players").LocalPlayer
-            local char = player.Character
-            local hrp = char and char:FindFirstChild("HumanoidRootPart")
-            if not hrp then return end
-
+            if not hrp or not hum then return end
             local Best_Quest = getBestQuest()
-            if not Best_Quest then return end
+            if not Best_Quest then 
+                hum.AutoRotate = true 
+                hum.PlatformStand = false
+                return 
+            end
             
-            local Quest = Best_Quest.quest
-            local MobTitleQuest = Best_Quest.namequest
-            local MobNameFolder = Best_Quest.npc
-
             local playerGui = player:WaitForChild("PlayerGui")
-            local Quest_Gui = playerGui.QuestUI.Quest.Visible
-            local Quest_Text = playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text
+            
+            if playerGui.QuestUI.Quest.Visible and playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text == Best_Quest.namequest then
+                local allMobs = getCurrentMobs(Best_Quest.npc)
+                
+                local MobInstance = nil
+                local closestDist = math.huge
+                
+                for _, m in ipairs(allMobs) do
+                    local dist = GetDistance(m:GetPivot().Position, hrp.Position)
+                    if dist < closestDist then
+                        closestDist = dist
+                        MobInstance = m
+                    end
+                end
 
-            if Quest_Gui then
-                if Quest_Text == MobTitleQuest then
+                if MobInstance then
+                    hum.AutoRotate = false 
+                    hum.PlatformStand = true 
                     
-                    if _G.Config.BringMobs then
-                        local mobs = getCurrentMobs(MobNameFolder)
+                    local mHrp = MobInstance:FindFirstChild("HumanoidRootPart")
+                    
+                    if mHrp then
+                        mHrp.Anchored = true 
                         
-                        if #mobs > 0 then
-                            _G.CentralFarmPoint = _G.CentralFarmPoint or mobs[1]:GetPivot().Position
-                            local flyPos = _G.CentralFarmPoint + Vector3.new(0, _G.Config.FarmHeight, 0)
-                            
-                            TP(CFrame.lookAt(flyPos, _G.CentralFarmPoint))
-                            
-                            repeat task.wait()
-                                if not _G.Config.BringMobs or not _G.Config.AutoFarm then break end
-                                mobs = getCurrentMobs(MobNameFolder)
-                                hrp.CFrame = CFrame.lookAt(flyPos, _G.CentralFarmPoint)
-
-                                for i, mob in ipairs(mobs) do
-                                    pcall(function()
-                                        local angle = (i / #mobs) * math.pi * 2
-                                        local x = math.cos(angle) * _G.Config.BringDistance
-                                        local z = math.sin(angle) * _G.Config.BringDistance
-                                        
-                                        mob.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(x, -(_G.Config.FarmHeight - 1), z)
-                                        mob.HumanoidRootPart.Velocity = Vector3.new(0,0,0)
-                                    end)
-                                end
-                                game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
-                            until #mobs == 0 or not playerGui.QuestUI.Quest.Visible or playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= MobTitleQuest
-                        else
-                            _G.CentralFarmPoint = nil
-                        end
-                    else
-                        local MobInstance = nil
-                        local allMobs = getCurrentMobs(MobNameFolder)
+                        local orbitAngle = 0 
                         
-                        local closestDist = math.huge
-                        for _, m in ipairs(allMobs) do
-                            local dist = GetDistance(m:GetPivot().Position, hrp.Position)
-                            if dist < closestDist then
-                                closestDist = dist
-                                MobInstance = m
-                            end
-                        end
-
-                        if MobInstance then
-                            repeat task.wait()
-                                if _G.Config.BringMobs or not _G.Config.AutoFarm then break end
-                                if not MobInstance.Parent or MobInstance.Humanoid.Health <= 0 then break end
-                                
-                                local pivot = MobInstance:GetPivot()
-                                local pos = pivot.Position
-                                local flyPos = pos + Vector3.new(0, _G.Config.FarmHeight, 0)
-                                local targetCFrame = CFrame.lookAt(flyPos, pos)
-                                
-                                TP(targetCFrame)
-                                game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
-                            until MobInstance.Humanoid.Health <= 0 or not playerGui.QuestUI.Quest.Visible or playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= MobTitleQuest
-                        else
-                            local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
-                            if npc then 
-                                TP(npc:GetPivot() * CFrame.new(0, 0, 3))
-                            end
-                        end
+                        repeat task.wait()
+                            if not MobInstance.Parent or MobInstance.Humanoid.Health <= 0 then break end
+                            
+                            AutoEquip()
+                            
+                            local pos = mHrp.Position
+                            orbitAngle = orbitAngle + math.rad(5) 
+                            local radius = 5 
+                            local flyPos = pos + Vector3.new(math.cos(orbitAngle) * radius, 10, math.sin(orbitAngle) * radius)
+                            
+                            local targetCFrame = CFrame.lookAt(flyPos, pos)
+                            
+                            TP(targetCFrame)
+                            game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
+                        until MobInstance.Humanoid.Health <= 0 or not playerGui.QuestUI.Quest.Visible or playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= Best_Quest.namequest
+                        
+                        if mHrp then mHrp.Anchored = false end
                     end
                 else
-                    game:GetService("ReplicatedStorage").RemoteEvents.QuestAbandon:FireServer("repeatable")
-                    _G.CentralFarmPoint = nil
+                    hum.AutoRotate = true
+                    hum.PlatformStand = false
+                    local npc = workspace.ServiceNPCs:FindFirstChild(Best_Quest.quest)
+                    if npc then TP(npc:GetPivot() * CFrame.new(0, 0, 3)) end
                 end
+            elseif playerGui.QuestUI.Quest.Visible then
+                hum.AutoRotate = true
+                hum.PlatformStand = false
+                game:GetService("ReplicatedStorage").RemoteEvents.QuestAbandon:FireServer("repeatable")
             else
-                _G.CentralFarmPoint = nil
-                local npc = workspace.ServiceNPCs:FindFirstChild(Quest)
+                hum.AutoRotate = true
+                hum.PlatformStand = false
+                local npc = workspace.ServiceNPCs:FindFirstChild(Best_Quest.quest)
                 if npc then
                     local targetPos = npc:GetPivot() * CFrame.new(0, 0, 3)
-                    if GetDistance(targetPos.Position) > 10 then
-                        TP(targetPos)
-                    else
-                        game:GetService("ReplicatedStorage").RemoteEvents.QuestAccept:FireServer(Quest)
+                    TP(targetPos)
+                    if GetDistance(targetPos.Position) <= 10 then
+                        game:GetService("ReplicatedStorage").RemoteEvents.QuestAccept:FireServer(Best_Quest.quest)
                     end
                 end
             end
@@ -210,7 +196,6 @@ end)
 
 spawn(function()
     while task.wait(1) do
-        if not _G.Config.AutoStats then continue end
         pcall(function()
             local player = game:GetService("Players").LocalPlayer
             local statPointsValue = player.Data:FindFirstChild("StatPoints")
