@@ -218,3 +218,17 @@ spawn(function()
         end)
     end
 end)
+
+spawn(function()
+    local abilityRemote = game:GetService("ReplicatedStorage"):WaitForChild("AbilitySystem"):WaitForChild("Remotes"):WaitForChild("RequestAbility")
+    while task.wait(0.5) do
+        pcall(function()
+            local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+            if playerGui and playerGui:FindFirstChild("QuestUI") and playerGui.QuestUI.Quest.Visible then
+                abilityRemote:FireServer(1)
+                task.wait(0.1)
+                abilityRemote:FireServer(2)
+            end
+        end)
+    end
+end)
