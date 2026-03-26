@@ -37,16 +37,13 @@ local TweenService = game:GetService("TweenService")
 function TP(pos)
     local root = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not root then return end
-    
     local target = typeof(pos) == "CFrame" and pos or CFrame.new(pos.X, pos.Y, pos.Z)
     local distance = (root.Position - target.Position).Magnitude
-    
     if distance < 3 then
         AddVelocity()
         root.CFrame = target
         return
     end
-    
     local time = distance / 180
     local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
     AddVelocity()
@@ -58,8 +55,7 @@ function AutoEquip()
     local char = player.Character
     if char then
         local currentWeapon = char:FindFirstChild(_G.SelectWeapon) or char:FindFirstChildOfClass("Tool")
-        if currentWeapon then return end 
-        
+        if currentWeapon then return end
         local backpack = player:FindFirstChild("Backpack")
         if backpack then
             local tool = backpack:FindFirstChild(_G.SelectWeapon) or backpack:FindFirstChildOfClass("Tool")
@@ -95,13 +91,9 @@ end)
 
 local function getBestQuest()
     local modulePath = game:GetService("ReplicatedStorage"):WaitForChild("Modules", 5) and game:GetService("ReplicatedStorage").Modules:FindFirstChild("QuestConfig")
-    if not modulePath then 
-        print("[DEBUG] Không tìm thấy QuestConfig module")
-        return nil 
-    end
+    if not modulePath then return nil end
     local module = require(modulePath)
     local playerLvl = game.Players.LocalPlayer.Data.Level.Value
-    print("[DEBUG] Player level:", playerLvl)
     local bestQuest, bestLevel = nil, -math.huge
     for name, data in pairs(module.RepeatableQuests or {}) do
         if type(name) == "string" and name:find("QuestNPC") then
@@ -110,52 +102,40 @@ local function getBestQuest()
                 if playerLvl >= reqLvl and reqLvl > bestLevel then
                     bestLevel = reqLvl
                     bestQuest = {quest = name, namequest = data.title, npc = data.requirements[1].npcType}
-                    print("[DEBUG] Quest tìm thấy:", bestQuest.quest, "| NPC:", bestQuest.npc, "| Level req:", reqLvl)
                 end
             end
         end
     end
-    if not bestQuest then print("[DEBUG] Không tìm thấy quest phù hợp") end
     return bestQuest
 end
 
 local function getCurrentMobs(mobName)
     local currentMobs = {}
-    print("[DEBUG] Tìm quái với tên:", mobName)
-    
     local npcFolder = workspace:FindFirstChild("NPCs")
     if npcFolder then
-        print("[DEBUG] Đã tìm thấy folder NPCs")
         for _, npc in ipairs(npcFolder:GetChildren()) do
             if npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
                 if npc.Humanoid.Health > 0 then
-                    -- Kiểm tra tên chính xác hoặc có số đuôi
-                    if string.lower(npc.Name) == string.lower(mobName) or npc.Name:match("^" .. mobName .. "%d*$") then
-                        print("[DEBUG] Tìm thấy quái:", npc.Name, "Health:", npc.Humanoid.Health)
+                    local npcNameClean = string.lower(npc.Name):gsub("[ _]", "")
+                    local targetClean = string.lower(mobName):gsub("[ _]", "")
+                    if npcNameClean == targetClean or npc.Name:match("^" .. mobName .. "%d*$") or string.find(npc.Name, mobName) then
                         table.insert(currentMobs, npc)
                     end
                 end
             end
         end
-    else
-        print("[DEBUG] Không tìm thấy folder NPCs")
     end
-    
     if #currentMobs == 0 then
-        print("[DEBUG] Không tìm thấy trong NPCs, tìm toàn bộ workspace...")
         for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") then
                 if obj.Humanoid.Health > 0 and string.find(string.lower(obj.Name), string.lower(mobName)) then
                     if obj ~= game.Players.LocalPlayer.Character then
-                        print("[DEBUG] Tìm thấy quái (workspace):", obj.Name)
                         table.insert(currentMobs, obj)
                     end
                 end
             end
         end
     end
-    
-    print("[DEBUG] Tổng số quái tìm được:", #currentMobs)
     return currentMobs
 end
 
@@ -165,39 +145,20 @@ spawn(function()
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         local hum = char and char:FindFirstChild("Humanoid")
-        
         pcall(function()
-            if not hrp or not hum then 
-                print("[DEBUG] Character chưa load")
-                return 
-            end
+            if not hrp or not hum then return end
             EnableNoClip()
-            
             local Best_Quest = getBestQuest()
-            if not Best_Quest then 
-                hum.AutoRotate = true 
+            if not Best_Quest then
+                hum.AutoRotate = true
                 hum.PlatformStand = false
-                return 
+                return
             end
-            
             local playerGui = player:WaitForChild("PlayerGui")
-            
-            -- Kiểm tra UI quest
-            local questVisible = playerGui.QuestUI.Quest.Visible
-            local questTitle = ""
-            if questVisible then
-                local titleObj = playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle
-                questTitle = titleObj.Text
-                print("[DEBUG] Quest UI đang hiển thị, title:", questTitle)
-            end
-            
-            if questVisible and questTitle == Best_Quest.namequest then
-                print("[DEBUG] Đang trong quest:", Best_Quest.namequest)
+            if playerGui.QuestUI.Quest.Visible and playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text == Best_Quest.namequest then
                 local allMobs = getCurrentMobs(Best_Quest.npc)
-                
                 local MobInstance = nil
                 local closestDist = math.huge
-                
                 for _, m in ipairs(allMobs) do
                     local dist = GetDistance(m:GetPivot().Position, hrp.Position)
                     if dist < closestDist then
@@ -205,55 +166,35 @@ spawn(function()
                         MobInstance = m
                     end
                 end
-                
                 if MobInstance then
-                    print("[DEBUG] Tìm thấy quái gần nhất:", MobInstance.Name, "khoảng cách:", closestDist)
-                    hum.AutoRotate = false 
-                    hum.PlatformStand = true 
-                    
+                    hum.AutoRotate = false
+                    hum.PlatformStand = true
                     local mHrp = MobInstance:FindFirstChild("HumanoidRootPart")
-                    
                     if mHrp then
-                        local orbitAngle = 0 
-                        
+                        local orbitAngle = 0
                         repeat task.wait()
-                            if not MobInstance.Parent or MobInstance.Humanoid.Health <= 0 then 
-                                print("[DEBUG] Quái chết hoặc mất")
-                                break 
-                            end
-                            
+                            if not MobInstance.Parent or MobInstance.Humanoid.Health <= 0 then break end
                             AutoEquip()
-                            
                             local pos = mHrp.Position
-                            orbitAngle = orbitAngle + math.rad(5) 
-                            local radius = 5 
+                            orbitAngle = orbitAngle + math.rad(5)
+                            local radius = 5
                             local flyPos = pos + Vector3.new(math.cos(orbitAngle) * radius, 10, math.sin(orbitAngle) * radius)
-                            
                             local targetCFrame = CFrame.lookAt(flyPos, pos)
-                            
                             TP(targetCFrame)
                             game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
                         until MobInstance.Humanoid.Health <= 0 or not playerGui.QuestUI.Quest.Visible or playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= Best_Quest.namequest
                     end
                 else
-                    print("[DEBUG] Không tìm thấy quái nào để đánh")
                     hum.AutoRotate = true
                     hum.PlatformStand = false
                     local npc = workspace.ServiceNPCs:FindFirstChild(Best_Quest.quest)
-                    if npc then 
-                        print("[DEBUG] Di chuyển đến NPC:", Best_Quest.quest)
-                        TP(npc:GetPivot() * CFrame.new(0, 0, 3)) 
-                    else
-                        print("[DEBUG] Không tìm thấy NPC:", Best_Quest.quest)
-                    end
+                    if npc then TP(npc:GetPivot() * CFrame.new(0, 0, 3)) end
                 end
-            elseif questVisible then
-                print("[DEBUG] Quest hiện tại không phải quest đã chọn, bỏ quest")
+            elseif playerGui.QuestUI.Quest.Visible then
                 hum.AutoRotate = true
                 hum.PlatformStand = false
                 game:GetService("ReplicatedStorage").RemoteEvents.QuestAbandon:FireServer("repeatable")
             else
-                print("[DEBUG] Chưa có quest, đến NPC nhận quest:", Best_Quest.quest)
                 hum.AutoRotate = true
                 hum.PlatformStand = false
                 local npc = workspace.ServiceNPCs:FindFirstChild(Best_Quest.quest)
@@ -261,11 +202,8 @@ spawn(function()
                     local targetPos = npc:GetPivot() * CFrame.new(0, 0, 3)
                     TP(targetPos)
                     if GetDistance(targetPos.Position) <= 10 then
-                        print("[DEBUG] Gửi yêu cầu nhận quest")
                         game:GetService("ReplicatedStorage").RemoteEvents.QuestAccept:FireServer(Best_Quest.quest)
                     end
-                else
-                    print("[DEBUG] Không tìm thấy NPC:", Best_Quest.quest)
                 end
             end
         end)
@@ -278,12 +216,9 @@ spawn(function()
             local player = game:GetService("Players").LocalPlayer
             local statPointsValue = player.Data:FindFirstChild("StatPoints")
             if not statPointsValue then return end
-            
             local statPoints = statPointsValue.Value
-            
             if statPoints > 0 then
                 local remote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("AllocateStat")
-                
                 if statPoints >= 2 then
                     local pointsToAdd = math.floor(statPoints / 2)
                     local remainder = statPoints % 2
