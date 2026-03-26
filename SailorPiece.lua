@@ -76,6 +76,23 @@ function AutoEquip()
     end
 end
 
+function EnableNoClip()
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    if char then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function(char)
+    task.wait(0.5)
+    EnableNoClip()
+end)
+
 local function getBestQuest()
     local modulePath = game:GetService("ReplicatedStorage"):WaitForChild("Modules", 5) and game:GetService("ReplicatedStorage").Modules:FindFirstChild("QuestConfig")
     if not modulePath then return nil end
@@ -98,10 +115,25 @@ end
 
 local function getCurrentMobs(mobName)
     local currentMobs = {}
-    if not workspace:FindFirstChild("NPCs") then return currentMobs end
-    for _, npc in ipairs(workspace.NPCs:GetChildren()) do
-        if (npc.Name:match("^"..mobName.."%d+$") or npc.Name == mobName) and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 and npc:FindFirstChild("HumanoidRootPart") then
-            table.insert(currentMobs, npc)
+    local npcFolder = workspace:FindFirstChild("NPCs")
+    if npcFolder then
+        for _, npc in ipairs(npcFolder:GetChildren()) do
+            if npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
+                if npc.Humanoid.Health > 0 and (string.lower(npc.Name) == string.lower(mobName) or npc.Name:match("^" .. mobName .. "%d*$")) then
+                    table.insert(currentMobs, npc)
+                end
+            end
+        end
+    end
+    if #currentMobs == 0 then
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") then
+                if obj.Humanoid.Health > 0 and string.find(string.lower(obj.Name), string.lower(mobName)) then
+                    if obj ~= game.Players.LocalPlayer.Character then
+                        table.insert(currentMobs, obj)
+                    end
+                end
+            end
         end
     end
     return currentMobs
@@ -116,6 +148,8 @@ spawn(function()
         
         pcall(function()
             if not hrp or not hum then return end
+            EnableNoClip()
+            
             local Best_Quest = getBestQuest()
             if not Best_Quest then 
                 hum.AutoRotate = true 
@@ -146,8 +180,6 @@ spawn(function()
                     local mHrp = MobInstance:FindFirstChild("HumanoidRootPart")
                     
                     if mHrp then
-                        mHrp.Anchored = true 
-                        
                         local orbitAngle = 0 
                         
                         repeat task.wait()
@@ -165,8 +197,6 @@ spawn(function()
                             TP(targetCFrame)
                             game:GetService("ReplicatedStorage").CombatSystem.Remotes.RequestHit:FireServer()
                         until MobInstance.Humanoid.Health <= 0 or not playerGui.QuestUI.Quest.Visible or playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text ~= Best_Quest.namequest
-                        
-                        if mHrp then mHrp.Anchored = false end
                     end
                 else
                     hum.AutoRotate = true
