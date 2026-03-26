@@ -112,26 +112,14 @@ end
 local function getCurrentMobs(mobName)
     local currentMobs = {}
     local npcFolder = workspace:FindFirstChild("NPCs")
-    if npcFolder then
-        for _, npc in ipairs(npcFolder:GetChildren()) do
-            if npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
-                if npc.Humanoid.Health > 0 then
-                    local npcNameClean = string.lower(npc.Name):gsub("[ _]", "")
-                    local targetClean = string.lower(mobName):gsub("[ _]", "")
-                    if npcNameClean == targetClean or npc.Name:match("^" .. mobName .. "%d*$") or string.find(npc.Name, mobName) then
-                        table.insert(currentMobs, npc)
-                    end
-                end
-            end
-        end
-    end
-    if #currentMobs == 0 then
-        for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") then
-                if obj.Humanoid.Health > 0 and string.find(string.lower(obj.Name), string.lower(mobName)) then
-                    if obj ~= game.Players.LocalPlayer.Character then
-                        table.insert(currentMobs, obj)
-                    end
+    if not npcFolder then return currentMobs end
+    local mobNameLower = string.lower(mobName)
+    for _, npc in ipairs(npcFolder:GetChildren()) do
+        if npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
+            if npc.Humanoid.Health > 0 then
+                local npcNameLower = string.lower(npc.Name)
+                if npcNameLower == mobNameLower or npcNameLower:match(mobNameLower) or npcNameLower:find(mobNameLower) then
+                    table.insert(currentMobs, npc)
                 end
             end
         end
@@ -156,7 +144,15 @@ spawn(function()
             end
             local playerGui = player:WaitForChild("PlayerGui")
             if playerGui.QuestUI.Quest.Visible and playerGui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text == Best_Quest.namequest then
-                local allMobs = getCurrentMobs(Best_Quest.npc)
+                local mobName = Best_Quest.npc
+                local allMobs = getCurrentMobs(mobName)
+                if #allMobs == 0 then
+                    local questTitle = Best_Quest.namequest
+                    local firstWord = questTitle:match("^%S+")
+                    if firstWord then
+                        allMobs = getCurrentMobs(firstWord)
+                    end
+                end
                 local MobInstance = nil
                 local closestDist = math.huge
                 for _, m in ipairs(allMobs) do
