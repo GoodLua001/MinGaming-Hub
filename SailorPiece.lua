@@ -162,7 +162,7 @@ task.spawn(function()
                             local pos = mHrp.Position
                             orbitAngle = orbitAngle + math.rad(5) 
                             local radius = 5 
-                            local flyPos = pos + Vector3.new(math.cos(orbitAngle) * radius, 10, math.sin(orbitAngle) * radius)
+                            local flyPos = pos + Vector3.new(math.cos(orbitAngle) * radius, 35, math.sin(orbitAngle) * radius)
                             
                             local targetCFrame = CFrame.lookAt(flyPos, pos)
                             
