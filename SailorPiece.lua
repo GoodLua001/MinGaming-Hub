@@ -16,6 +16,35 @@ end)
 _G.SelectWeapon = "Sword"
 _G.OrbitAngle = 0
 
+local function CheckInventory(n, t, q)
+    local g = LocalPlayer.PlayerGui:FindFirstChild("InventoryPanelUI") and LocalPlayer.PlayerGui.InventoryPanelUI:FindFirstChild("MainFrame")
+    if not g then return q and 0 or nil end
+    pcall(function()
+        local invBtn = LocalPlayer.PlayerGui.BasicStatsCurrencyAndButtonsUI.MainFrame.UIButtons.InventoryButtonFrame.InventoryButton
+        if invBtn.MouseButton1Click then firesignal(invBtn.MouseButton1Click) end
+        if invBtn.Activated then firesignal(invBtn.Activated) end
+    end)
+    repeat task.wait() until g.Visible
+    local tb = g.Frame.Content.Holder.Tabs:FindFirstChild(t)
+    local btn = tb and tb:FindFirstChild("ButtonOff")
+    if btn then
+        if btn.MouseButton1Click then firesignal(btn.MouseButton1Click) end
+        if btn.Activated then firesignal(btn.Activated) end
+        repeat task.wait() until not btn.Visible
+    end
+    for _, v in pairs(g.Frame.Content.Holder.StorageHolder.Storage:GetChildren()) do
+        if string.find(v.Name, n) then
+            local h = v:FindFirstChild("Slot") and v.Slot:FindFirstChild("Holder")
+            if q and h and h:FindFirstChild("Quantity") then
+                return tonumber(h.Quantity.Text:match("%d+")) or 0
+            elseif not q and h and h:FindFirstChild("ItemName") then
+                return h.ItemName.Text
+            end
+        end
+    end
+    return q and 0 or nil
+end
+
 local function Check(n)
     local b, c = LocalPlayer:FindFirstChild("Backpack"), LocalPlayer.Character
     return (b and b:FindFirstChild(n)) or (c and c:FindFirstChild(n)) ~= nil
