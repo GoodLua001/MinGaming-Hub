@@ -317,7 +317,7 @@ end)
 
 local AutoBuySwordsList = {
     {ItemName = "Katana",    NPCName = "Katana",           Price = 2500},
-    {ItemName = "DarkBlade", NPCName = "DarkBladeBuyer",   Price = 250000},
+    {ItemName = "DarkBlade", NPCName = "DarkBladeNPC",   Price = 250000},
     {ItemName = "Gryphon",  NPCName = "GryphonBuyerNPC",  Price = 600000}
 }
 
