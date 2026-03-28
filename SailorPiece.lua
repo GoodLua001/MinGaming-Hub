@@ -1,234 +1,347 @@
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 local TweenService = game:GetService("TweenService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local LocalPlayer = Players.LocalPlayer
 
 local RequestHit = ReplicatedStorage:WaitForChild("CombatSystem"):WaitForChild("Remotes"):WaitForChild("RequestHit")
+
+_G.IsBuying = false
+_G.SelectWeapon = "Sword"
+
+local MobNameOverrides = {
+    ["Slime Warrior Hunter"] = "Slime",
+}
 
 LocalPlayer.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
-_G.SelectWeapon = "Sword"
-_G.OrbitAngle = 0
-
-local function CheckInventory(n, t, q)
-    local g = LocalPlayer.PlayerGui:FindFirstChild("InventoryPanelUI") and LocalPlayer.PlayerGui.InventoryPanelUI:FindFirstChild("MainFrame")
-    if not g then return q and 0 or nil end
-    pcall(function()
-        local invBtn = LocalPlayer.PlayerGui.BasicStatsCurrencyAndButtonsUI.MainFrame.UIButtons.InventoryButtonFrame.InventoryButton
-        if invBtn.MouseButton1Click then firesignal(invBtn.MouseButton1Click) end
-        if invBtn.Activated then firesignal(invBtn.Activated) end
-    end)
-    repeat task.wait() until g.Visible
-    local tb = g.Frame.Content.Holder.Tabs:FindFirstChild(t)
-    local btn = tb and tb:FindFirstChild("ButtonOff")
-    if btn then
-        if btn.MouseButton1Click then firesignal(btn.MouseButton1Click) end
-        if btn.Activated then firesignal(btn.Activated) end
-        repeat task.wait() until not btn.Visible
-    end
-    for _, v in pairs(g.Frame.Content.Holder.StorageHolder.Storage:GetChildren()) do
-        if string.find(v.Name, n) then
-            local h = v:FindFirstChild("Slot") and v.Slot:FindFirstChild("Holder")
-            if q and h and h:FindFirstChild("Quantity") then
-                return tonumber(h.Quantity.Text:match("%d+")) or 0
-            elseif not q and h and h:FindFirstChild("ItemName") then
-                return h.ItemName.Text
-            end
+function GetDistance(a, b)
+    local function pos(t)
+        if typeof(t) == "Vector3" then return t end
+        if typeof(t) == "CFrame" then return t.Position end
+        if typeof(t) == "Instance" then
+            if t:IsA("BasePart") then return t.Position end
+            local hrp = t:FindFirstChild("HumanoidRootPart")
+            return hrp and hrp.Position or (pcall(t.GetPivot, t) and t:GetPivot().Position)
         end
     end
-    return q and 0 or nil
+    local p1 = pos(a)
+    local p2 = pos(b) or pos(LocalPlayer.Character)
+    return (p1 and p2) and (p1 - p2).Magnitude or math.huge
 end
 
-local function Check(n)
-    local b, c = LocalPlayer:FindFirstChild("Backpack"), LocalPlayer.Character
-    return (b and b:FindFirstChild(n)) or (c and c:FindFirstChild(n)) ~= nil
-end
-
-local function GetBestWeapon()
-    for _, w in ipairs({"Gryphon", "Dark Blade", "Katana ", "Katana", "Sword"}) do
-        if Check(w) then return w end
-    end
-    return "Sword"
-end
-
-local function AutoEquip()
-    _G.SelectWeapon = GetBestWeapon()
-    local c = LocalPlayer.Character
-    local h = c and c:FindFirstChildOfClass("Humanoid")
-    if c and h then
-        local cw = c:FindFirstChildOfClass("Tool")
-        if cw and cw.Name == _G.SelectWeapon then return end
-        h:UnequipTools()
-        local t = LocalPlayer:FindFirstChild("Backpack") and LocalPlayer.Backpack:FindFirstChild(_G.SelectWeapon)
-        if t then h:EquipTool(t) end
+function AddVelocity()
+    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if root and not root:FindFirstChild("3TOC") then
+        local body = Instance.new("BodyVelocity")
+        body.Name = "3TOC"
+        body.Parent = root
+        body.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        body.Velocity = Vector3.new(0, 0, 0)
     end
 end
 
-local function TP(pos)
+game:GetService("RunService").Heartbeat:Connect(function()
+    if LocalPlayer.Character then
+        for _, v in pairs(LocalPlayer.Character:GetChildren()) do
+            if (v:IsA("BasePart") or v:IsA("Part")) then
+                v.CanCollide = false
+            end
+        end
+        AddVelocity()
+    end
+end)
+
+function TP(pos)
     local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not root then return end
-    local target = typeof(pos) == "CFrame" and pos or CFrame.new(pos)
-    if not root:FindFirstChild("3TOC") then
-        local b = Instance.new("BodyVelocity", root)
-        b.Name, b.MaxForce, b.Velocity = "3TOC", Vector3.new(9e9, 9e9, 9e9), Vector3.zero
-    end
-    local dist = (root.Position - target.Position).Magnitude
-    if dist < 3 then
+    
+    local target = typeof(pos) == "CFrame" and pos or CFrame.new(pos.X, pos.Y, pos.Z)
+    local distance = (root.Position - target.Position).Magnitude
+    
+    if distance < 3 then
+        AddVelocity()
         root.CFrame = target
         return
     end
-    TweenService:Create(root, TweenInfo.new(dist / 180, Enum.EasingStyle.Linear), {CFrame = target}):Play()
+    
+    local time = distance / 180
+    local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
+    TweenService:Create(root, tweenInfo, {CFrame = target}):Play()
 end
 
-local function getBestQuest()
-    local mod = ReplicatedStorage:FindFirstChild("Modules") and ReplicatedStorage.Modules:FindFirstChild("QuestConfig")
-    if not mod then return nil end
-    local req = require(mod)
-    local lvl = LocalPlayer.Data.Level.Value
-    local bq, bl = nil, -math.huge
-    for n, d in pairs(req.RepeatableQuests or {}) do
-        if type(n) == "string" and n:find("QuestNPC") and d.recommendedLevel and d.requirements and d.requirements[1] then
-            if lvl >= d.recommendedLevel and d.recommendedLevel > bl then
-                bl = d.recommendedLevel
-                bq = {quest = n, namequest = d.title, npc = d.requirements[1].npcType}
+function AutoEquip(n)
+    local c = LocalPlayer.Character if not c then return end
+    local w = n or _G.SelectWeapon
+    if c:FindFirstChild(w) or c:FindFirstChildOfClass("Tool") then return end
+    local t = (LocalPlayer.Backpack:FindFirstChild(w)) or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+    if t then 
+        local h = c:FindFirstChildOfClass("Humanoid") 
+        if h then h:EquipTool(t) t.Parent = c end 
+    end
+end
+
+function CheckBackPack(bx)
+    local BackpackandCharacter = { game.Players.LocalPlayer.Backpack, game.Players.LocalPlayer.Character }
+    for _, by in pairs(BackpackandCharacter) do
+        for _, v in pairs(by:GetChildren()) do
+            if type(bx) == "table" then
+                if table.find(bx, v.Name) then return v end
+            else
+                if v.Name == bx then return v end
             end
         end
     end
-    return bq
 end
 
-local function BuyWeapon(eqName, bpName, cost, gems, npcName)
-    if Check(bpName) or Check(eqName) then return false end
+local function getBestQuest()
+    local modulePath = ReplicatedStorage:WaitForChild("Modules", 5) and ReplicatedStorage.Modules:FindFirstChild("QuestConfig")
+    if not modulePath then return nil end
+    local module = require(modulePath)
+    local playerLvl = LocalPlayer.Data.Level.Value
+    local bestQuest, bestLevel = nil, -math.huge
+    for name, data in pairs(module.RepeatableQuests or {}) do
+        if type(name) == "string" and name:find("QuestNPC") then
+            if data.recommendedLevel and data.requirements and data.requirements[1] then
+                local reqLvl = data.recommendedLevel
+                if playerLvl >= reqLvl and reqLvl > bestLevel then
+                    bestLevel = reqLvl
+                    bestQuest = {quest = name, namequest = data.title, npc = data.requirements[1].npcType}
+                end
+            end
+        end
+    end
+    return bestQuest
+end
+
+local function getCurrentMobs(mobName)
+    local currentMobs = {}
+    if not Workspace:FindFirstChild("NPCs") then return currentMobs end
+    for _, npc in ipairs(Workspace.NPCs:GetChildren()) do
+        if (npc.Name:match("^"..mobName.."%d+$") or npc.Name == mobName) and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 and npc:FindFirstChild("HumanoidRootPart") then
+            table.insert(currentMobs, npc)
+        end
+    end
+    return currentMobs
+end
+
+function CheckInventory(n, t, q)
+    local p = game.Players.LocalPlayer
+    local invBtn = p.PlayerGui:FindFirstChild("BasicStatsCurrencyAndButtonsUI") and p.PlayerGui.BasicStatsCurrencyAndButtonsUI.MainFrame.UIButtons.InventoryButtonFrame.InventoryButton
+    if invBtn then 
+        if invBtn.MouseButton1Click then firesignal(invBtn.MouseButton1Click) end 
+        if invBtn.Activated then firesignal(invBtn.Activated) end 
+    end
+    
+    local g = p.PlayerGui:FindFirstChild("InventoryPanelUI") and p.PlayerGui.InventoryPanelUI.MainFrame
+    if not g then return q and 0 end
+    
+    repeat task.wait() until g.Visible
+    local tb = g.Frame.Content.Holder.Tabs:FindFirstChild(t)
+    local btn = tb and tb:FindFirstChild("ButtonOff")
+    if btn then 
+        if btn.MouseButton1Click then firesignal(btn.MouseButton1Click) end 
+        if btn.Activated then firesignal(btn.Activated) end 
+        repeat task.wait() until not btn.Visible 
+    end
+    
+    for _, v in pairs(g.Frame.Content.Holder.StorageHolder.Storage:GetChildren()) do
+        if string.find(v.Name, n) then
+            local h = v:FindFirstChild("Slot") and v.Slot:FindFirstChild("Holder")
+            return q and h and h:FindFirstChild("Quantity") and tonumber(h.Quantity.Text:match("%d+")) or h and h:FindFirstChild("ItemName") and h.ItemName.Text
+        end
+    end
+    return q and 0
+end
+
+function BuySword(n, m)
     local d = LocalPlayer:FindFirstChild("Data")
-    if not d or d.Money.Value < cost or (d:FindFirstChild("Gems") and d.Gems.Value < gems) then return false end
-    local f = Workspace:FindFirstChild("ServiceNPCs") or (Workspace:FindFirstChild("NPCs") and Workspace.NPCs:FindFirstChild("ServiceNPCs"))
-    local npc = f and f:FindFirstChild(npcName)
+    if not d or d.Money.Value < m then return false end
+    
+    local f = workspace:FindFirstChild("ServiceNPCs") or (workspace:FindFirstChild("NPCs") and workspace.NPCs:FindFirstChild("ServiceNPCs"))
+    local npc = f and f:FindFirstChild(n)
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    
     if npc and npc:FindFirstChild("HumanoidRootPart") and hrp then
-        TP(npc.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3))
+        local targetCFrame = npc.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+        TP(targetCFrame)
         task.wait(0.5)
+        
         local p = npc:FindFirstChildWhichIsA("ProximityPrompt", true)
-        if p then fireproximityprompt(p, 1) else
+        if p then 
+            fireproximityprompt(p, 1) 
+        else
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
             task.wait(1)
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
         end
-        task.wait(1.5)
-        if Check(bpName) or Check(eqName) then
-            pcall(function()
-                ReplicatedStorage.Remotes.EquipWeapon:FireServer("UnEquip", _G.SelectWeapon)
-                task.wait(0.3)
-                ReplicatedStorage.Remotes.EquipWeapon:FireServer("Equip", eqName)
-            end)
-        end
-        return true
     end
-    return false
 end
 
-local function FarmLogic()
-    local char = LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    local hum = char and char:FindFirstChild("Humanoid")
-    if not hrp or not hum then return end
-    
-    local bq = getBestQuest()
-    if not bq then hum.AutoRotate, hum.PlatformStand = true, false return end
-    
-    local gui = LocalPlayer:WaitForChild("PlayerGui")
-    if gui.QuestUI.Quest.Visible and gui.QuestUI.Quest.Quest.Holder.Content.QuestInfo.QuestTitle.QuestTitle.Text == bq.namequest then
-        local mobs, target, dist = {}, nil, math.huge
-        local f = Workspace:FindFirstChild("NPCs")
-        if f then
-            for _, m in ipairs(f:GetChildren()) do
-                if (m.Name:match("^"..bq.npc.."%d+$") or m.Name == bq.npc) and m:FindFirstChild("Humanoid") and m.Humanoid.Health > 0 and m:FindFirstChild("HumanoidRootPart") then
-                    local d = (m:GetPivot().Position - hrp.Position).Magnitude
-                    if d < dist then dist, target = d, m end
+local function getSortedNPCs()
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return {} end
+
+    local folder = Workspace:FindFirstChild("NPCs")
+    if not folder then return {} end
+
+    local list = {}
+    for _, npc in pairs(folder:GetChildren()) do
+        local hum = npc:FindFirstChild("Humanoid")
+        if hum and hum.Health > 0 then
+            local p = npc.PrimaryPart or npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChild("Head")
+            if p then
+                local dist = (p.Position - hrp.Position).Magnitude
+                if dist <= 300 then
+                    table.insert(list, {npc = npc, dist = dist})
                 end
             end
+        end
+    end
+
+    table.sort(list, function(a, b) return a.dist < b.dist end)
+
+    local sorted = {}
+    for _, v in ipairs(list) do table.insert(sorted, v.npc) end
+    return sorted
+end
+
+function flv()
+    if _G.IsBuying then return end
+
+    local c = LocalPlayer.Character
+    local hrp = c and c:FindFirstChild("HumanoidRootPart")
+    local hum = c and c:FindFirstChild("Humanoid")
+    if not hrp or not hum then return end
+    
+    local q = getBestQuest()
+    if not q then hum.AutoRotate, hum.PlatformStand = true, false return end
+    
+    local gui = LocalPlayer.PlayerGui
+    local questUI = gui:FindFirstChild("QuestUI")
+    if not questUI then return end
+    
+    local titleElement = questUI.Quest.Holder.Content.QuestInfo.QuestTitle:FindFirstChild("QuestTitle")
+    local title = titleElement and titleElement.Text or ""
+    
+    if questUI.Visible and title == q.namequest then
+        local targetMobName = MobNameOverrides[q.npc] or q.npc 
+        
+        local mobs = getCurrentMobs(targetMobName)
+        local target, dist = nil, math.huge
+        for _, m in ipairs(mobs) do
+            local d = GetDistance(m:GetPivot().Position, hrp.Position)
+            if d < dist then dist, target = d, m end
         end
         
         if target then
             hum.AutoRotate, hum.PlatformStand = false, true
-            local mHrp = target:FindFirstChild("HumanoidRootPart")
-            if mHrp then
-                mHrp.Anchored = true
-                AutoEquip()
-                _G.OrbitAngle = _G.OrbitAngle + math.rad(5)
-                TP(CFrame.lookAt(mHrp.Position + Vector3.new(math.cos(_G.OrbitAngle) * 5, 35, math.sin(_G.OrbitAngle) * 5), mHrp.Position))
+            local mhrp = target:FindFirstChild("HumanoidRootPart")
+            if mhrp then
+                mhrp.Anchored = true
+                local a = 0
+                repeat task.wait()
+                    if not target.Parent or target.Humanoid.Health <= 0 or _G.IsBuying then break end
+                    AutoEquip()
+                    a += math.rad(5)
+                    local p = mhrp.Position
+                    TP(CFrame.lookAt(p + Vector3.new(math.cos(a)*5, 30, math.sin(a)*5), p))
+                until target.Humanoid.Health <= 0 or not questUI.Visible or title ~= q.namequest or _G.IsBuying
+                mhrp.Anchored = false
             end
         else
             hum.AutoRotate, hum.PlatformStand = true, false
-            local npc = Workspace:FindFirstChild("ServiceNPCs") or (Workspace:FindFirstChild("NPCs") and Workspace.NPCs:FindFirstChild("ServiceNPCs"))
-            if npc and npc:FindFirstChild(bq.quest) then TP(npc[bq.quest]:GetPivot() * CFrame.new(0, 0, 3)) end
+            local npc = Workspace.ServiceNPCs:FindFirstChild(q.quest)
+            if npc then TP(npc:GetPivot() * CFrame.new(0,0,3)) end
         end
-    elseif gui.QuestUI.Quest.Visible then
+    elseif questUI.Visible then
         hum.AutoRotate, hum.PlatformStand = true, false
         ReplicatedStorage.RemoteEvents.QuestAbandon:FireServer("repeatable")
     else
         hum.AutoRotate, hum.PlatformStand = true, false
-        local npc = Workspace:FindFirstChild("ServiceNPCs") or (Workspace:FindFirstChild("NPCs") and Workspace.NPCs:FindFirstChild("ServiceNPCs"))
-        if npc and npc:FindFirstChild(bq.quest) then
-            local pos = npc[bq.quest]:GetPivot() * CFrame.new(0, 0, 3)
-            TP(pos)
-            if (hrp.Position - pos.Position).Magnitude <= 10 then
-                ReplicatedStorage.RemoteEvents.QuestAccept:FireServer(bq.quest)
-            end
-        end
+        ReplicatedStorage.RemoteEvents.QuestAccept:FireServer(q.quest)
     end
-end
-
-local lastStat, lastAtk = 0, 0
-local function StatsLogic()
-    if tick() - lastStat < 1 then return end
-    lastStat = tick()
-    local sp = LocalPlayer.Data:FindFirstChild("StatPoints")
-    if sp and sp.Value > 0 then
-        local rm = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("AllocateStat")
-        if sp.Value >= 2 then
-            rm:FireServer("Defense", math.floor(sp.Value / 2))
-            rm:FireServer("Sword", math.floor(sp.Value / 2) + (sp.Value % 2))
-        else
-            rm:FireServer("Sword", 1)
-        end
-    end
-end
-
-local function AttackLogic()
-    if tick() - lastAtk < 0.1 then return end
-    lastAtk = tick()
-    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    local f = Workspace:FindFirstChild("NPCs")
-    if not hrp or not f then return end
-    local closest, dist = nil, math.huge
-    for _, n in pairs(f:GetChildren()) do
-        local p = n.PrimaryPart or n:FindFirstChild("HumanoidRootPart") or n:FindFirstChild("Head")
-        local h = n:FindFirstChild("Humanoid")
-        if p and h and h.Health > 0 then
-            local d = (p.Position - hrp.Position).Magnitude
-            if d < dist then dist, closest = d, p end
-        end
-    end
-    if closest then RequestHit:FireServer(closest.Position) end
 end
 
 task.spawn(function()
-    while task.wait() do
+    while task.wait(0.05) do
         pcall(function()
-            if BuyWeapon("Gryphon", "Gryphon", 650000, 650, "GryphonBuyerNPC") or 
-               BuyWeapon("Dark Blade", "Dark Blade", 250000, 150, "DarkBladeNPC") or 
-               BuyWeapon("Katana ", "Katana", 2500, 0, "Katana") then
-            else
-                FarmLogic()
-                AttackLogic()
+            flv() 
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            local statPointsValue = LocalPlayer.Data:FindFirstChild("StatPoints")
+            if not statPointsValue then return end
+            
+            local statPoints = statPointsValue.Value
+            if statPoints > 0 then
+                local remote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("AllocateStat")
+                
+                local defensePoints = math.floor(statPoints / 4)
+                local swordPoints = statPoints - defensePoints
+                
+                if defensePoints > 0 then
+                    remote:FireServer("Defense", defensePoints)
+                end
+                if swordPoints > 0 then
+                    remote:FireServer("Sword", swordPoints)
+                end
             end
-            StatsLogic()
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait(0.1) do
+        local npcs = getSortedNPCs()
+        for _, npc in ipairs(npcs) do
+            local hitPos = npc:FindFirstChild("Head") and npc.Head.Position or npc:FindFirstChild("HumanoidRootPart") and npc.HumanoidRootPart.Position
+            if hitPos then
+                pcall(function()
+                    RequestHit:FireServer(hitPos)
+                    task.wait(0.05)
+                end)
+            end
+        end
+    end
+end)
+
+local AutoBuySwordsList = {
+    {ItemName = "Katana",    NPCName = "Katana",           Price = 2500},
+    {ItemName = "DarkBlade", NPCName = "DarkBladeBuyer",   Price = 250000},
+    {ItemName = "Gryphon",  NPCName = "GryphonBuyerNPC",  Price = 600000}
+}
+
+task.spawn(function()
+    while task.wait(0.5) do 
+        pcall(function()
+            local playerData = LocalPlayer:FindFirstChild("Data")
+            if playerData and playerData:FindFirstChild("Money") then
+                local currentMoney = playerData.Money.Value
+                for _, sword in ipairs(AutoBuySwordsList) do
+                    if currentMoney >= sword.Price and not CheckInventory(sword.ItemName, "SwordTab", false) then
+                        
+                        _G.IsBuying = true 
+                        task.wait(1) 
+                        
+                        BuySword(sword.NPCName, sword.Price)
+                        task.wait(2) 
+                        
+                        _G.IsBuying = false 
+                        break 
+                        
+                    end
+                end
+            end
         end)
     end
 end)
